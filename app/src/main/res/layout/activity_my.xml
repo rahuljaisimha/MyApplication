@@ -54,6 +54,13 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Debug"
+            android:onClick="onToggleClicked"
+            android:id="@+id/checkBox" />
+
         <EditText android:id="@+id/edit_message"
             android:layout_weight="1"
             android:layout_width="0dp"

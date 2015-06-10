@@ -14,10 +14,12 @@ import android.view.MenuItem;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -25,6 +27,8 @@ import java.util.Date;
 
 
 public class MyActivity extends ActionBarActivity {
+
+    public static boolean debug = false;
 
     public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
     public final static String EXTRA_PHOTO = "com.mycompany.myfirstapp.PHOTO";
@@ -171,4 +175,16 @@ public class MyActivity extends ActionBarActivity {
             selectingPicture = false;
         }
     }
+
+    public void onToggleClicked(View view) {
+        // Is the toggle on?
+        boolean on = ((CheckBox) view).isChecked();
+
+        if (on) {
+            debug = true;
+        } else {
+            debug = false;
+        }
+    }
+
 }
