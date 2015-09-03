@@ -82,6 +82,12 @@ public class MyActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public void goToCardboard(View view) {
+        Intent intent = new Intent(this, CardboardActivity.class);
+        intent.setData(fileUri);
+        startActivity(intent);
+    }
+
     /** Called when the user clicks the Send button */
     public void goToSensors(View view) {
         Intent intent = new Intent(this, SensorActivity.class);
@@ -169,8 +175,6 @@ public class MyActivity extends ActionBarActivity {
 
                 ImageView img = (ImageView) findViewById(R.id.imageView);
                 img.setImageURI(fileUri);
-
-                System.out.println(fileUri.toString());
             }
             selectingPicture = false;
         }

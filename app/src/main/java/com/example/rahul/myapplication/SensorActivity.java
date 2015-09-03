@@ -4,7 +4,11 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,6 +24,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.InputStream;
 
 
 public class SensorActivity extends Activity implements SensorEventListener {
@@ -29,6 +36,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
     private SensorManager sensorManager;
     private long lastUpdate;
     Boolean bool = false, bool1 = false;
+
+    BitmapRegionDecoder bmpRegDec;
+    Bitmap myBitmap;
 
     Boolean firstTime;
 
@@ -52,7 +62,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
         Intent intent = getIntent();
         fileUri = intent.getData();
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+                sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_FASTEST);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
@@ -72,9 +82,24 @@ public class SensorActivity extends Activity implements SensorEventListener {
 //            ObjectAnimator.ofFloat(img, "rotationY", 180).start();
 
         img.setId(R.id.hello_world);
-        img.setImageURI(fileUri);
+        ////////img.setImageURI(fileUri);
+            try {
+                InputStream is = getContentResolver().openInputStream(fileUri);
+                bmpRegDec = BitmapRegionDecoder.newInstance(is, true);
+                is.close();
+                myBitmap = bmpRegDec.decodeRegion(new Rect(0,0,width,height),null);
+                img.setImageBitmap(myBitmap);
+            }
+            catch(Exception e){
+                Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
+            }
+
+
+
         img.setScaleX(scaleFactor);
         img.setScaleY(scaleFactor);
+
+
 
         img.setPivotX(width / 2);
         img.setPivotY(height / 2);
@@ -107,66 +132,66 @@ public class SensorActivity extends Activity implements SensorEventListener {
     float[] mGeomagnetic;
     @Override
     public void onSensorChanged(SensorEvent event) {
-//        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-//            mGravity = lowPass(event.values.clone(), mGravity);
-//        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-//            mGeomagnetic = lowPass(event.values.clone(), mGeomagnetic);
-//        if (mGravity != null && mGeomagnetic != null) {
-//            float R[] = new float[9];
-//            float I[] = new float[9];
-//            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
-//            if (success) {
-//                float orientation[] = new float[3];
-//                SensorManager.getOrientation(R, orientation);
-//
-//                // in radians
-//                x = -(orientation[0]);//azi
-//                y = (orientation[1]);//pit
-//                z = -(orientation[2]);//rol
-//
-////                if(Math.abs(prevX - x) < 5)
-////                    x = prevX;
-////                else
-////                    prevX = x;
-////
-////                if(Math.abs(prevY - y) < 1.5)
-////                    y = prevY;
-////                else
-////                    prevY = y;
-////
-////                if(Math.abs(prevZ - z) < 4)
-////                    z = prevZ;
-////                else
-////                    prevZ = z;
-//
-//                if (firstTime) {
-//                    initialX = x;
-//                    initialY = y;
-//                    initialZ = z;
-//                    firstTime = false;
-//                }
-//
-//                new ImageSensorTask().execute();
-//
-//            }
-//        }
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            float[] values = event.values;
-            // Movement
-            x = (float)Math.toRadians(values[0]);
-            y = (float)Math.toRadians(values[1]);
-            z = (float)Math.toRadians(values[2]);
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            mGravity = lowPass(event.values.clone(), mGravity);
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+            mGeomagnetic = lowPass(event.values.clone(), mGeomagnetic);
+        if (mGravity != null && mGeomagnetic != null) {
+            float R[] = new float[9];
+            float I[] = new float[9];
+            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+            if (success) {
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(R, orientation);
 
-            if (firstTime) {
-                initialX = x;
-                initialY = y;
-                initialZ = z;
-                firstTime = false;
+                // in radians
+                x = -(orientation[0]);//azi
+                y = (orientation[1]);//pit
+                z = (orientation[2]);//rol
+
+//                if(Math.abs(prevX - x) < 5)
+//                    x = prevX;
+//                else
+//                    prevX = x;
+//
+//                if(Math.abs(prevY - y) < 1.5)
+//                    y = prevY;
+//                else
+//                    prevY = y;
+//
+//                if(Math.abs(prevZ - z) < 4)
+//                    z = prevZ;
+//                else
+//                    prevZ = z;
+
+                if (firstTime) {
+                    initialX = x;
+                    initialY = y;
+                    initialZ = z;
+                    firstTime = false;
+                }
+
+                new ImageSensorTask().execute();
+
             }
-
-            new ImageSensorTask().execute();
-
         }
+//        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+//            float[] values = event.values;
+//            // Movement
+//            x = (float)Math.toRadians(values[0]);
+//            y = (float)Math.toRadians(values[1]);
+//            z = (float)Math.toRadians(values[2]);
+//
+//            if (firstTime) {
+//                initialX = x;
+//                initialY = y;
+//                initialZ = z;
+//                firstTime = false;
+//            }
+//
+//            new ImageSensorTask().execute();
+//
+//        }
     }
 
     @Override
@@ -191,8 +216,14 @@ public class SensorActivity extends Activity implements SensorEventListener {
             float deltaY = y - initialY;
             if(deltaX > Math.PI)    deltaX -= 2*Math.PI;
             if(deltaX < -Math.PI)   deltaX += 2*Math.PI;
-            xSet = width / 2 - img.getWidth() / 2 - img.getWidth() * scaleFactor * deltaX * 3 / (float)Math.PI;
-            ySet = height / 2 - img.getHeight() / 2 - img.getHeight() * scaleFactor * deltaY * 4 / (float)Math.PI;
+//            xSet = -( width / 2 - img.getWidth() / 2 - img.getWidth() * scaleFactor * deltaX * 3 / (float)Math.PI);
+//            ySet = - (height / 2 - img.getHeight() / 2 - img.getHeight() * scaleFactor * deltaY * 4 / (float)Math.PI);
+
+            xSet = deltaX * 7168/2 * scaleFactor / (2 * (float)Math.PI) + 7168/2 - width/2;
+            ySet = deltaY * 3584/2 * scaleFactor / (float)Math.PI + 3584/2 - height/2;
+
+            myBitmap = bmpRegDec.decodeRegion(new Rect((int)xSet,(int)ySet,(int)(xSet+width),(int)(ySet+height)),null);
+
 //            System.out.println(xSet + " " + ySet);
             return new Long(0);
         }
@@ -202,10 +233,16 @@ public class SensorActivity extends Activity implements SensorEventListener {
             if (edit != null) edit.setText("azi: " + Math.toDegrees(x) + "\npit: " + Math.toDegrees(y) + "\nrol: " + Math.toDegrees(z)
                                                 + "\ndx: " + (x - initialX));
 
-            img.setX(xSet);
-            img.setY(ySet);
+            //img.setX(xSet);
+            //img.setY(ySet);
 
-            img.setRotation((float)Math.toDegrees(z - initialZ));
+            img.setRotation((float) Math.toDegrees(z - initialZ));
+
+            img.setImageBitmap(myBitmap);
+            //setContentView(img);
+
+            //drawBitmapMesh for a warped image?
+            //createBitmap(..., matrix m, ...) for a warped image?
 
 //            img.setRotationX(initialY - y);
 //            img.setRotationY(- initialX + x);
